@@ -18,7 +18,7 @@ def phi(t):
     logistic function, returns 1 / (1 + exp(-t))
     """
     idx = t > 0
-    out = np.empty(t.size, dtype=np.float)
+    out = np.empty(t.size, dtype=np.float64)
     out[idx] = 1. / (1 + np.exp(-t[idx]))
     exp_t = np.exp(t[~idx])
     out[~idx] = exp_t / (1. + exp_t)
@@ -72,7 +72,7 @@ def ordinal_logistic_fit(X, y, alpha=0, l1_ratio=0, n_class=None, max_iter=10000
     idx_inv = np.zeros_like(idx)
     idx_inv[idx] = np.arange(idx.size)
     X = X[idx]
-    y = y[idx].astype(np.int)
+    y = y[idx].astype(np.int32)
     # make them continuous and start at zero
     unique_y = np.unique(y)
     for i, u in enumerate(unique_y):
@@ -82,7 +82,7 @@ def ordinal_logistic_fit(X, y, alpha=0, l1_ratio=0, n_class=None, max_iter=10000
     # .. utility arrays used in f_grad ..
     alpha = 0.
     k1 = np.sum(y == unique_y[0])
-    E0 = (y[:, np.newaxis] == np.unique(y)).astype(np.int)
+    E0 = (y[:, np.newaxis] == np.unique(y)).astype(np.int32)
     E1 = np.roll(E0, -1, axis=-1)
     E1[:, -1] = 0.
     E0, E1 = map(sparse.csr_matrix, (E0.T, E1.T))
@@ -221,7 +221,7 @@ def ordinal_logistic_fit(X, y, alpha=0, l1_ratio=0, n_class=None, max_iter=10000
         import pytron
         out = pytron.minimize(f_obj, grad_hess, x0, args=(X, y))
     else:
-        options = {'maxiter' : max_iter, 'disp': 0, 'maxfun':10000}
+        options = {'maxiter' : max_iter, 'disp': 0, 'maxfun':20}
         out = optimize.minimize(f_obj, x0, args=(X, y), method=solver,
             jac=f_grad, hessp=f_hess, options=options, callback=callback)
 
